@@ -1,4 +1,3 @@
-from re import S
 import pygame
 import numpy as np
 import time
@@ -19,7 +18,6 @@ SNAKE_TAIL_RIGHT = 11
 SNAKE_TAIL_LEFT = 12
 APPLE = 13
 
-
 def main ():
     boardSize = (10, 10)
     board, snake = initBoard(boardSize)
@@ -29,7 +27,6 @@ def main ():
     
     while True:
         snake = getKey(snake)
-        print(board, snake)
         board, snake, lost = advanceSnake(board, snake)
         
         if (lost):
@@ -40,22 +37,21 @@ def main ():
         
         time.sleep(0.5)
     
-    print(board, snake)
     return
 
 def initBoard(dimensions):
     #initialize board with empty spaces
     board = np.zeros(dimensions, dtype=int)
     
-    #put snake on the center of the board, with head represented by 1 and tail represented by 3 (body will be represented by 2)
+    #put snake on the center of the board, turned right
     center = ((int)(dimensions[0]/2), (int)(dimensions[1]/2))
     board[center] = SNAKE_HEAD
     board[center[0]][center[1]-1] = SNAKE_TAIL_LEFT
     
-    #put apple, represented by 4, on a random empty space
+    #put apple on a random empty space
     board = generateApple(board)
     
-    #initialize snake positions, direction and loss condition
+    #initialize snake positions and direction
     snake = ([center, (center[0], center[1]-1)], 'right')
     
     return board, snake
@@ -83,11 +79,11 @@ def advanceSnake(board, snake):
     elif (direction == 'down'):
         next = (body[0][0] +1, body[0][1])
         
-    #check if snake hits outer wall or own body or tail
+    #check if snake hits outer wall or itself
     if (not(0 <= next[0] < len(board)) or not(0 <= next[1] < len(board[0])) or SNAKE_HEAD <= board[next] <= SNAKE_TAIL_LEFT):
         return board, snake, True
     
-    #check if snake eats apple and progressBody
+    #check if snake eats apple and progress its body (snake grows in the head)
     if (board[next] == APPLE):
         body = [next] + body
         board = progressBody(board, body)
@@ -105,7 +101,6 @@ def progressBody(board, body):
     
     #progress body
     for i in range(1, len(body)-1):
-        print(i)
         if (body[i+1][1] < body[i][1]): #body is coming from left
             if (body[i-1][0] < body[i][0]): #body is going up
                 board[body[i]] = SNAKE_BODY_TOP_LEFT
@@ -151,10 +146,7 @@ def initializeBoardDisplay(board, snake):
     screen = pygame.display.set_mode((len(board)*40, len(board[0])*40))
     pygame.display.set_caption('Snake')
     
-    screen.fill(COLOR_GREEN)
-    
     screen = updateScreen(screen, board, snake)
-
     pygame.display.flip()
     
     return screen
